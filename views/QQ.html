@@ -30,7 +30,7 @@
     
     
     
-        <h1 id="panelTitle-2" class="text_ellipsis padding_20">联系人</h1>
+        <h1 id="panelTitle-2" class="text_ellipsis padding_20">小黑做的web聊天室</h1>
     
     
     
@@ -589,6 +589,23 @@
 </div>
 
 
+<style>
+    #lz-mask{ line-height: 30px;padding-top: 30px; -webkit-transition: all 1s; transition: all 1s; position: fixed;top:0;left: 0;width:100%;min-height: 100%; text-align: center; background-color: rgba(0,0,0,0.5); display: none;}
+    #namewrap{width: 240px; height: 200px; margin: 0 auto; border-radius: 3px; background-color: #ccc;margin-top: 20%;top:-100px;}
+</style>
+<!-- 登陆部分 -->
+<div id="lz-mask">
+    <div id="namewrap">
+        <h2>随便输个名呗</h2>
+        <input type="text" id="lz-username">
+        <button id="lz-sure">确定</button>
+    </div>
+
+</div>
+
+
+
+
 </body>
 </html>
 
@@ -598,22 +615,77 @@
 
 <script src="./socket.io/socket.io.js"></script>
 <script>
+
+var username = '';
+if (getNameFormCookie() =='') {
+    getById('lz-mask').style.display = 'block';
+}else{
+    username = getNameFormCookie();
+}
+
 //创建Socket.IO实例，建立连接
 // var socket = io.connect("<%= ip %>:5000");
 var socket =  io.connect(window.location.hostname);
 // var socket =  io.connect("/");
 
+getById('lz-sure').onclick = function(){
+    if (getById('lz-username').value) {
+        username = getById('lz-username').value;
+        getById('lz-mask').style.display = 'none';
+    };
+}
 
+
+function getById(id){
+    return document.getElementById(id);
+}
+
+// 从cookie中读取用户名
+function getNameFormCookie(){
+    var cookies = document.cookie.split(";");
+    if (cookies.length) {
+        for (var i = 0; i < cookies.length; i++) {
+            var kv = cookies[i].split('=');
+            // console.log(kv);
+
+            if(kv[0].trim() == 'lz-username' && kv[1]){
+                return kv[1];
+            }
+        };
+    };
+    return '';
+}
 
 // 时间提示函数
 function addTimeTip(timeStr){
     var dom = '<div class="chat_time"><span>'+timeStr+'</span></div>';
     document.getElementById("panelBody-5").innerHTML += dom;
+    chatBoxScrollBottom();
+}
+
+// 显示其他人发送的消息
+function addOtherClentMessage(message,name){
+    var dom = '<div class="chat_content_group buddy  " _sender_uin="418131904"><img class="chat_content_avatar" src="./QQ_files/getface(1)" width="40px" height="40px"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +' </p></div>';
+    document.getElementById("panelBody-5").innerHTML += dom;
+    chatBoxScrollBottom();
+}
+
+// 显示自己发送的消息
+function addMyMessage(message,name){
+    var dom = '<div class="chat_content_group self  " ><img class="chat_content_avatar" src="http://face1.web.qq.com/cgi/svr/face/getface?cache=1&amp;type=1&amp;f=40&amp;uin=2411731671&amp;t=1430799865&amp;vfwebqq=81cf773d6b48e954f827ee6194bebadeaef07d2241548cb6657ca0e8280688a0201969085aeafd9b" width="40px" height="40px"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +'</p></div>';
+    document.getElementById("panelBody-5").innerHTML += dom;
+    chatBoxScrollBottom();
+}
+
+// 滚动聊天窗口到底部
+function chatBoxScrollBottom(){
+    getById('panelBodyWrapper-5').scrollTop = 9999999;
 }
 
 // 添加一个连接监听器
 socket.on("connect",function() { 
   addTimeTip('已经连接到服务器了！太高兴了');
+  
 });
 
 // 添加一个消息监听器
@@ -622,25 +694,49 @@ socket.on("message",function(data) {
   document.getElementById("panelBody-5").innerHTML+=data + "<br />";
  
 });
-socket.on("emitMessage",function(data) { 
-  document.getElementById("panelBody-5").innerHTML+="来自服务器的消息："+data.hello + "<br />";
+
+// 接收后端发来的数据
+socket.on("emitMessage",function(data) {
+  // document.getElementById("panelBody-5").innerHTML+="来自服务器的消息："+data.hello + "<br />";
+
+  // 如果返回的数据有sendSuccess字段
+  if (data.sendSuccess) {
+    addTimeTip('成功发送消息:'+data.message);
+    addMyMessage(data.message,username);
+  };
+
+  // 如果返回的数据有otherClientData字段
+  if(data.otherClientData){
+    console.log(data);
+    addOtherClentMessage(data.message,data.username);
+  };
+
+  
 });
+
 
 // 添加一个关闭连接的监听器
 socket.on("disconnect",function() { 
   console.log("The client has disconnected!"); 
 }); 
 
-// 通过Socket发送一条消息到服务器
-function sendMessageToServer(message) { 
+// 通过Socket发送一条消息到服务器,消息可以是json数据
+function sendMessageToServer(message) {
   socket.send(message); 
 }
 
 // 发送按钮绑定事件
 var sendBtn = document.getElementById('send_chat_btn');
 sendBtn.onclick = function(){
-    if (document.getElementById('chat_textarea').value)
-        sendMessageToServer(document.getElementById('chat_textarea').value);
+    if (document.getElementById('chat_textarea').value && username){
+        // sendMessageToServer(document.getElementById('chat_textarea').value);
+        var exp = new Date();
+        exp.setTime(exp.getTime() + 1*60*60*1000);
+        document.cookie = "lz-username="+ username + ";expires=" + exp.toGMTString();
+        sendMessageToServer({message:document.getElementById('chat_textarea').value,username:username});
+        document.getElementById('chat_textarea').value = '';
+    }
+        
 }
 
 
