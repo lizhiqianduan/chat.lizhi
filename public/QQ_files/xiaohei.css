@@ -1,0 +1,6 @@
+.list>li,.list_group{
+	cursor: inherit !important;
+}
+.list_group.active .list_arrow_right{
+	background-image: none !important;
+}

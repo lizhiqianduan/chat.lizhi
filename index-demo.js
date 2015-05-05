@@ -8,6 +8,7 @@ var fs = require("fs");
 
 app.engine('.html', require('ejs').__express);
 app.set('port', (process.env.PORT || 5000));
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(request, response) {
 	  // response.writeHead(200,{"Content-Type":"text/html"});
@@ -15,7 +16,7 @@ app.get('/', function(request, response) {
     // response.sendFile(__dirname+'/client.html');
     // response.send('<input type="hidden" value='+ getIPAdress() +' />');
     var ip = getIPAdress();
-    response.render('client.html',{
+    response.render('QQ.html',{
       ip:ip,
       port:process.env.PORT || 5000
     });
@@ -32,6 +33,8 @@ var httpIns = app.listen(app.get('port'), function() {
 // var socketapp = express.createServer();
 var socket= io.listen(httpIns); 
 
+// 保存客户端连接个数
+var clientList = [];
 // console.log(socket,io,httpIns);
 
 
@@ -44,12 +47,12 @@ socket.on("connection", function(client){
   // 收到客户端的消息
   client.on("message",function(data){ 
     console.log("收到客户端的消息：",data);
-    client.emit("emitMessage", { hello: "你好,服务器已经收到你的消息了："+data});
+    client.emit("emitMessage", { isSuccess:1,hello: "你好,服务器已经收到你的消息了："+data});
   }); 
   client.on("disconnect",function(){ 
     console.log("Server has disconnected");
   }); 
-  client.send("hello, I am the server");
+  // client.send("hello, I am the server");
 });
 
 
