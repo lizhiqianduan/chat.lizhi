@@ -44,7 +44,7 @@ socket.on("connection", function(client){
   // 收到客户端的消息
   client.on("message",function(data){ 
     console.log("收到客户端的消息：",data);
-    client.emit("emitMessage", { hello: "你好,服务器已经收到消息了"});
+    client.emit("emitMessage", { hello: "你好,服务器已经收到你的消息了："+data});
   }); 
   client.on("disconnect",function(){ 
     console.log("Server has disconnected");
