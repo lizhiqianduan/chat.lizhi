@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style>
+div{
+    border: 1px solid pink;
+    width:800px;
+}
+</style>
+</head>
+<body>
+<h1></h1>
+<div id="result"></div>
+
+<input type="text" id="input"/>
+<button id="send">发送消息</button>
+
+
+
+<script src="./socket.io/socket.io.js"></script>
+<script>
+//创建Socket.IO实例，建立连接
+// var socket = io.connect("<%= ip %>:5000");
+var socket =  io.connect(window.location.hostname);
+// var socket =  io.connect("/");
+
+
+
+// 添加一个连接监听器
+socket.on("connect",function() { 
+  console.log("Client has connected to the server!"); 
+});
+
+// 添加一个消息监听器
+socket.on("message",function(data) {
+//    console.log(data);
+  document.getElementById("result").innerHTML+=data + "<br />";
+ 
+});
+socket.on("emitMessage",function(data) { 
+  document.getElementById("result").innerHTML+="来自服务器的消息："+data.hello + "<br />";
+ 
+});
+
+// 添加一个关闭连接的监听器
+socket.on("disconnect",function() { 
+  console.log("The client has disconnected!"); 
+}); 
+
+// 通过Socket发送一条消息到服务器
+function sendMessageToServer(message) { 
+  socket.send(message); 
+}
+
+// 发送按钮绑定事件
+var sendBtn = document.getElementById('send');
+sendBtn.onclick = function(){
+	if (document.getElementById('input').value)
+		sendMessageToServer(document.getElementById('input').value);
+}
+
+
+</script>
+
+</body>
+</html>
