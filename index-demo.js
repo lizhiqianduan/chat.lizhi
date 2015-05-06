@@ -15,7 +15,7 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', function(request, response) {
 
     var ip = getIPAdress();
-    response.render('QQ.min.html',{
+    response.render('QQ.html',{
       ip:ip,
       port:process.env.PORT || 5000,
       clientList:clientList
