@@ -22,14 +22,14 @@
         <img src="./QQ_files/getface(1)" width="40" height="40">
         <span id="user_online_state" class="state_online"></span>
     </div>
-    <span class="text_ellipsis user_nick">电脑狂</span>
+    <span class="text_ellipsis user_nick" id="lz-logined-name">小黑的web聊天室</span>
+    <span style="margin-left:77px;text-decoration: underline;cursor: pointer;" onclick="loginOut()">退出</span>
 </div>
 
 </div><div class="panel selected" id="panel-2" cmd="void">
 <header id="panelHeader-2" class="panel_header">
-    
-    
-    
+        
+
         <h1 id="panelTitle-2" class="text_ellipsis padding_20">小黑做的web聊天室</h1>
     
     
@@ -40,8 +40,8 @@
     <div id="panelBody-2" class="panel_body "><div id="contactList" class="tab tab_animate member_tab">
     <ul id="memberTab" class="tab_head">
         <li cmd="clickMemberTab" param="friend" class="active">好友</li>
-        <li cmd="clickMemberTab" param="group">群</li>
-        <li cmd="clickMemberTab" param="discuss">讨论组</li>
+        <li cmd="clickMemberTab" param="group" onclick="alert('暂未开放')">房间</li>
+        <li cmd="clickMemberTab" param="discuss" onclick="alert('暂未开放')">讨论组</li>
     </ul>
     <ul class="tab_body member_tab_body">
         <li id="memberTabBody-friend" class="active">
@@ -52,7 +52,7 @@
 <li class="list_group active">
     <div id="groupTitle-0" class="list_group_title list_group_white_title list_arrow_right" cmd="clickMemberGroup" param="0">
         <span>当前连接人数</span>
-        <span class="onlinePercent">55</span>
+        <span class="onlinePercent" id="lz-user-number"><%= clientList.length+50 %></span>
     </div>
     <ul id="groupBodyUl-0" class="list_group_body list list_white catogory_List">
 
@@ -80,7 +80,31 @@
 
     </li>
 
+<!-- 循环用户列表 -->
+<% for(var i=0;i<clientList.length;i++){ 
+        if(clientList[i].lzUserInfo.username){
+    %>
+<li id="<%= clientList[i].lzUserInfo.connId %>" class="list_item" _uin="418131904" _type="friend" cmd="clickMemberItem">
+    <a href="javascript:void(0);" class="avatar" cmd="clickMemberAvatar" _uin="418131904" _type="friend"><img src="./QQ_files/getface(1)" class="lazyLoadImg loaded">
+        
+    </a>
+    <p class="member_nick" id="userNick-418131904">
     
+        <%= clientList[i].lzUserInfo.username %>
+    
+    </p>
+    
+    <p class="member_msg text_ellipsis">
+    
+    <span class="member_state">[在线]</span>
+    
+        
+    <span class="member_signature" title="IP:<%= JSON.stringify(clientList[i].handshake.address) %>">鼠标悬浮可查看对方ip</span></p>
+        
+
+    </li>
+<% } } %>
+
     
 
 </ul>
@@ -150,7 +174,7 @@
 
 <footer id="panelFooter-0" class="">
     <nav id="nav_tab" cmd="void">
-    <ul class="nav_tab_head">
+    <ul class="nav_tab_head" onclick="alert('手贱啊，别乱点了，这些都是假的。。。')">
         
         <li id="session" class="contact" cmd="clickNav" param="session">
             <a>
@@ -212,68 +236,9 @@
         <div id="panelBodyWrapper-5" class="panel_body_container" style="top: 45px; bottom: 50px; overflow: hidden; overflow-y: scroll;background: rgba(0,0,0,.5)!important;">
             <div id="panelBody-5" class="panel_body chat_container" style=" background: none !important; ">
             
-        <div class="chat_time"><span>12:24</span></div>
-            
-
-        <div class="chat_content_group self  " _sender_uin="2411731671">
-            
-            <img class="chat_content_avatar" src="http://face1.web.qq.com/cgi/svr/face/getface?cache=1&amp;type=1&amp;f=40&amp;uin=2411731671&amp;t=1430799865&amp;vfwebqq=81cf773d6b48e954f827ee6194bebadeaef07d2241548cb6657ca0e8280688a0201969085aeafd9b" width="40px" height="40px">
-            
-                <p class="chat_nick">电脑狂</p>
-            
-            
-            <p class="chat_content ">hi</p>
-        </div>
-
-
-            
-            
-
-        <div class="chat_content_group self  " _sender_uin="2411731671">
-            
-            <img class="chat_content_avatar" src="http://face1.web.qq.com/cgi/svr/face/getface?cache=1&amp;type=1&amp;f=40&amp;uin=2411731671&amp;t=1430799865&amp;vfwebqq=81cf773d6b48e954f827ee6194bebadeaef07d2241548cb6657ca0e8280688a0201969085aeafd9b" width="40px" height="40px">
-            
-                <p class="chat_nick">电脑狂</p>
-            
-            
-            <p class="chat_content ">everybody nice</p>
-        </div>
-
-
-            
-            
-
-
-
-            
-            
-
-
-
-            
-            
-
-
-
-
-
-            
-        <div class="chat_time"><span>12:37</span></div>
-            
-
-        <div class="chat_content_group buddy  " _sender_uin="418131904">
-            
-            <img class="chat_content_avatar" src="./QQ_files/getface(1)" width="40px" height="40px">
-            
-                <p class="chat_nick">四川-前端-小黑</p>
-            
-            
-            <p class="chat_content ">[自定义表情] </p>
-        </div>
-
-
-
-        </div>
+            <!-- 这个容器用来装聊天内容 -->
+    
+            </div>
 
 
 
@@ -281,18 +246,28 @@
         </div>
 
         <footer id="panelFooter-5" class="chat_toolbar_footer">
-            <div class="chat_toolbar">
+            <form onsubmit="sendBtnClick();return false;">
+            <div class="chat_toolbar" style="display:block;">
+                
+                    
+                
         <!--     <div id="add_app_btn" class="btn btn_add_grey">
-                <span class="btn_img"></span>
-            </div> -->
-            <div id="add_face_btn" class="btn btn_face">
-                <span class="btn_img"></span>
+                    <span class="btn_img"></span>
+                </div> -->
+                <div id="add_face_btn" class="btn btn_face" style="float:left;">
+                    <span class="btn_img"></span>
+                </div>
+                
+                
+                <input type="text" id="chat_textarea" class="input input_white chat_textarea" style="width:58%;display: inline-block;">
+                <button id="send_chat_btn" onclick="sendBtnClick()" class="btn btn_small btn_blue" cmd="sendMsg" style="float:right;">
+                    <span class="btn_text">发送</span>
+                </button>
+                
+                <textarea id="" class="input input_white chat_textarea hidden_textarea" style="height: 32px; width: 564px;"></textarea>
+                
             </div>
-            <textarea id="chat_textarea" class="input input_white chat_textarea"></textarea>
-            <button id="send_chat_btn" class="btn btn_small btn_blue" cmd="sendMsg">
-                <span class="btn_text">发送</span>
-            </button>
-        <textarea id="" class="input input_white chat_textarea hidden_textarea" style="height: 32px; width: 564px;"></textarea></div>
+            </form>
         <div id="face_images" class="qq_face_area" style="display: none;">
             <ul class="wrap" style="width: 0px; -webkit-transform: translate3d(0px, 0px, 0px);">
                 
@@ -596,9 +571,9 @@
 <!-- 登陆部分 -->
 <div id="lz-mask">
     <div id="namewrap">
-        <h2>随便输个名呗</h2>
+        <h2>取个让人印象深刻的名字吧</h2>
         <input type="text" id="lz-username">
-        <button id="lz-sure">确定</button>
+        <button id="lz-sure" onclick="lzSureClick()">确定</button>
     </div>
 
 </div>
@@ -615,129 +590,5 @@
 
 <script src="./socket.io/socket.io.js"></script>
 <script>
-
-var username = '';
-if (getNameFormCookie() =='') {
-    getById('lz-mask').style.display = 'block';
-}else{
-    username = getNameFormCookie();
-}
-
-//创建Socket.IO实例，建立连接
-// var socket = io.connect("<%= ip %>:5000");
-var socket =  io.connect(window.location.hostname);
-// var socket =  io.connect("/");
-
-getById('lz-sure').onclick = function(){
-    if (getById('lz-username').value) {
-        username = getById('lz-username').value;
-        getById('lz-mask').style.display = 'none';
-    };
-}
-
-
-function getById(id){
-    return document.getElementById(id);
-}
-
-// 从cookie中读取用户名
-function getNameFormCookie(){
-    var cookies = document.cookie.split(";");
-    if (cookies.length) {
-        for (var i = 0; i < cookies.length; i++) {
-            var kv = cookies[i].split('=');
-            // console.log(kv);
-
-            if(kv[0].trim() == 'lz-username' && kv[1]){
-                return kv[1];
-            }
-        };
-    };
-    return '';
-}
-
-// 时间提示函数
-function addTimeTip(timeStr){
-    var dom = '<div class="chat_time"><span>'+timeStr+'</span></div>';
-    document.getElementById("panelBody-5").innerHTML += dom;
-    chatBoxScrollBottom();
-}
-
-// 显示其他人发送的消息
-function addOtherClentMessage(message,name){
-    var dom = '<div class="chat_content_group buddy  " _sender_uin="418131904"><img class="chat_content_avatar" src="./QQ_files/getface(1)" width="40px" height="40px"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +' </p></div>';
-    document.getElementById("panelBody-5").innerHTML += dom;
-    chatBoxScrollBottom();
-}
-
-// 显示自己发送的消息
-function addMyMessage(message,name){
-    var dom = '<div class="chat_content_group self  " ><img class="chat_content_avatar" src="http://face1.web.qq.com/cgi/svr/face/getface?cache=1&amp;type=1&amp;f=40&amp;uin=2411731671&amp;t=1430799865&amp;vfwebqq=81cf773d6b48e954f827ee6194bebadeaef07d2241548cb6657ca0e8280688a0201969085aeafd9b" width="40px" height="40px"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +'</p></div>';
-    document.getElementById("panelBody-5").innerHTML += dom;
-    chatBoxScrollBottom();
-}
-
-// 滚动聊天窗口到底部
-function chatBoxScrollBottom(){
-    getById('panelBodyWrapper-5').scrollTop = 9999999;
-}
-
-// 添加一个连接监听器
-socket.on("connect",function() { 
-  addTimeTip('已经连接到服务器了！太高兴了');
-  
-});
-
-// 添加一个消息监听器
-socket.on("message",function(data) {
-//    console.log(data);
-  document.getElementById("panelBody-5").innerHTML+=data + "<br />";
- 
-});
-
-// 接收后端发来的数据
-socket.on("emitMessage",function(data) {
-  // document.getElementById("panelBody-5").innerHTML+="来自服务器的消息："+data.hello + "<br />";
-
-  // 如果返回的数据有sendSuccess字段
-  if (data.sendSuccess) {
-    addTimeTip('成功发送消息:'+data.message);
-    addMyMessage(data.message,username);
-  };
-
-  // 如果返回的数据有otherClientData字段
-  if(data.otherClientData){
-    // console.log(data);
-    addOtherClentMessage(data.message,data.username);
-  };
-
-  
-});
-
-
-// 添加一个关闭连接的监听器
-socket.on("disconnect",function() { 
-  console.log("The client has disconnected!"); 
-}); 
-
-// 通过Socket发送一条消息到服务器,消息可以是json数据
-function sendMessageToServer(message) {
-  socket.send(message); 
-}
-
-// 发送按钮绑定事件
-var sendBtn = document.getElementById('send_chat_btn');
-sendBtn.onclick = function(){
-    if (document.getElementById('chat_textarea').value && username){
-        // sendMessageToServer(document.getElementById('chat_textarea').value);
-        var exp = new Date();
-        exp.setTime(exp.getTime() + 1*60*60*1000);
-        document.cookie = "lz-username="+ username + ";expires=" + exp.toGMTString();
-        sendMessageToServer({message:document.getElementById('chat_textarea').value,username:username});
-        document.getElementById('chat_textarea').value = '';
-    }
-        
-}
-
-
+    function getById(a){return document.getElementById(a)}function getNameFormCookie(){var a=document.cookie.split(";");if(a.length)for(var b=0;b<a.length;b++){var c=a[b].split("=");if("lz-username"==c[0].trim()&&c[1])return c[1]}return""}function addTimeTip(a){var b='<div class="chat_time"><span>'+a+"</span></div>";document.getElementById("panelBody-5").innerHTML+=b,chatBoxScrollBottom()}function addOtherClentMessage(a,b){var c='<div class="chat_content_group buddy  " _sender_uin="418131904"><img class="chat_content_avatar" src="./QQ_files/getface(1)" width="40px" height="40px"><p class="chat_nick">'+b+'</p><p class="chat_content ">'+a+" </p></div>";document.getElementById("panelBody-5").innerHTML+=c,chatBoxScrollBottom()}function addMyMessage(a,b){var c='<div class="chat_content_group self  " ><img class="chat_content_avatar" src="./QQ_files/getface"><p class="chat_nick">'+b+'</p><p class="chat_content ">'+a+"</p></div>";document.getElementById("panelBody-5").innerHTML+=c,chatBoxScrollBottom()}function chatBoxScrollBottom(){getById("panelBodyWrapper-5").scrollTop=9999999}function titleBlink(){titleIsBlink=!0;var a=document.title;document.title="你有新消息了!!!";var b=0,c=setInterval(function(){b%2==0?document.title=a:document.title="你有新消息了!!!",b++,7==b&&clearInterval(c)},1e3)}function sendMessageToServer(a){socket.send(a)}function sendBtnClick(){document.getElementById("chat_textarea").value&&username&&(sendMessageToServer({message:document.getElementById("chat_textarea").value,username:username}),document.getElementById("chat_textarea").value="")}function lzSureClick(){if(getById("lz-username").value){username=getById("lz-username").value;var a=new Date;a.setTime(a.getTime()+36e5),document.cookie="lz-username="+username+";expires="+a.toGMTString(),getById("lz-mask").style.display="none",bindSocketEvent()}}function setCookie(a,b,c){c=c?c:1;var d=new Date;d.setTime(d.getTime()+60*c*60*1e3),document.cookie=a+"="+b+";expires="+d.toGMTString()}function loginOut(){setCookie("lz-username","",-3),window.location.reload()}function bindSocketEvent(){socket=io.connect(window.location.hostname),socket.on("connect",function(){console.log("connect success"),socket.emit("checkUsername",{username:username})}),socket.on("usernameCheckSuccess",function(a){getById("lz-logined-name").innerText=username,addTimeTip((new Date).toLocaleTimeString()),addOtherClentMessage(username+"，你好！你已经进入聊天室了，快和大家打个招呼吧！","小黑的智能机器人"),addTimeTip("现版本聊天室没有数据库作存储，所以...千万别刷新!"),socket.on("message",function(a){document.getElementById("panelBody-5").innerHTML+=a+"<br />"}),socket.on("emitMessage",function(a){a.sendSuccess&&addMyMessage(a.message,username),a.otherClientData&&(titleBlink(),addOtherClentMessage(a.message,a.username))})}),socket.on("refreshUserList",function(a){var b=a.length;getById("lz-user-number").innerText=b;var c=getById("groupBodyUl-0");c.innerHTML="";for(var d=0;d<a.length;d++)if(a[d].username){var e='<li id="'+a[d].connId+'" class="list_item" _uin="418131904" _type="friend" cmd="clickMemberItem"><a href="javascript:void(0);" class="avatar" cmd="clickMemberAvatar" _uin="418131904" _type="friend"><img src="./QQ_files/getface(1)" class="lazyLoadImg loaded"></a><p class="member_nick" id="userNick-418131904"> '+a[d].username+' </p><p class="member_msg text_ellipsis"><span class="member_state">[在线]</span><span class="member_signature" title="IP:'+a[d].userIp+'">鼠标悬浮可查看对方ip</span></p></li>';c.innerHTML+=e}}),socket.on("usernameCheckFail",function(a){var b=getById("lz-mask");b.style.display="block",getById("namewrap").innerHTML+='<div style="color:red;">该名字已经在别处登陆了~~<br>重新取个牛逼的名字吧</div>'}),socket.on("disconnect",function(){console.log("The client has disconnected!")})}function init(){""==getNameFormCookie()?getById("lz-mask").style.display="block":confirm("检测到你之前登陆过，是否使用之前的名字开始交流")?(username=getNameFormCookie(),bindSocketEvent()):getById("lz-mask").style.display="block"}var socket=null,username="",titleIsBlink=!1;init();
 </script>
