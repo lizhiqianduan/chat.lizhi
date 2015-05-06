@@ -62,6 +62,9 @@ function chatBoxScrollBottom(){
 
 // 闪烁标题，提示新消息
 function titleBlink(){
+    if (titleIsBlink) {
+        return;
+    };
     titleIsBlink = true;
     var oldTitle = document.title;
     document.title = '你有新消息了!!!';
@@ -70,17 +73,15 @@ function titleBlink(){
         if(i%2==0){
             document.title = oldTitle;
         }else{
-            document.title = '你有新消息了!!!';
+            document.title = '....新消息....';
         }
         i++;
         if(i==7){
             clearInterval(tid);
+            titleIsBlink = false;
         }
-    },1000);
+    },500);
 }
-
-
-
 
 
 
@@ -116,9 +117,8 @@ function sendBtnClick(){
 function lzSureClick(){
     if (getById('lz-username').value) {
         username = getById('lz-username').value;
-        var exp = new Date();
-        exp.setTime(exp.getTime() + 1*60*60*1000);
-        document.cookie = "lz-username="+ username + ";expires=" + exp.toGMTString();
+
+        setCookie('lz-username',username,24);
         getById('lz-mask').style.display = 'none';
         bindSocketEvent();
     };
@@ -141,8 +141,8 @@ function loginOut(){
 
 // 绑定socket相关事件
 function bindSocketEvent(){
-    socket = io.connect("<%= ip %>:5000");
-        // var socket =  io.connect(window.location.hostname);
+    // socket = io.connect("localhost:5000");
+        var socket =  io.connect(window.location.hostname);
         // var socket =  io.connect("/");
     // 绑定事件
 
@@ -159,32 +159,23 @@ function bindSocketEvent(){
         addTimeTip(new Date().toLocaleTimeString());
         addOtherClentMessage(username+'，你好！你已经进入聊天室了，快和大家打个招呼吧！','小黑的智能机器人');
         addTimeTip('现版本聊天室没有数据库作存储，所以...千万别刷新!');
-        // 添加一个消息监听器
-        socket.on("message",function(data) {
-        //    console.log(data);
-          document.getElementById("panelBody-5").innerHTML+=data + "<br />";
-         
-        });
+    });
 
-        // 接收后端发来的数据
-        socket.on("emitMessage",function(data) {
-          // document.getElementById("panelBody-5").innerHTML+="来自服务器的消息："+data.hello + "<br />";
+    // 无论用户是否登陆，都接收后端发来的数据
+    socket.on("emitMessage",function(data) {
+      // 如果返回的数据有sendSuccess字段，表示发送成功
+      if (data.sendSuccess) {
+        addMyMessage(data.message,username);
+      };
 
-          // 如果返回的数据有sendSuccess字段，表示发送成功
-          if (data.sendSuccess) {
-            addMyMessage(data.message,username);
-          };
+      // 如果返回的数据有otherClientData字段，表示这条消息来自其他客户端
+      if(data.otherClientData){
+        // console.log(data);
+        titleBlink();
+        addOtherClentMessage(data.message,data.username);
+      };
 
-          // 如果返回的数据有otherClientData字段
-          if(data.otherClientData){
-            // console.log(data);
-            titleBlink();
-            addOtherClentMessage(data.message,data.username);
-          };
-
-          
-        });
-
+      
     });
 
     // 更新用户列表
