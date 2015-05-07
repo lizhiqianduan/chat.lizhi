@@ -272,7 +272,8 @@ function setCookie(name,value,expirsTime){
 
 function loginOut(){
     // document.cookie
-    setCookie('lz-username','',-3); 
+    setCookie('lz-username','',-3);
+    alert('怎么就退出了呢!改个名字再来啊~~'); 
     window.location.reload();
 }
 
@@ -369,12 +370,12 @@ function init(){
         getById('lz-mask').style.display = 'block';
     }else{
     // 建立连接
-        if(confirm('检测到你之前登陆过，是否使用之前的名字开始交流')){
-            username = getNameFormCookie();
-            bindSocketEvent();
-        }else{
-            getById('lz-mask').style.display = 'block';
-        }
+        // if(confirm('检测到你之前登陆过，是否使用之前的名字开始交流')){
+        username = getNameFormCookie();
+        bindSocketEvent();
+        // }else{
+            // getById('lz-mask').style.display = 'block';
+        // }
     }
 
     lzFaceModule.init();
