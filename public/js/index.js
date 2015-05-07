@@ -64,7 +64,7 @@ var lzFaceModule = {
         }else{
             this.showFace();
         }
-        lzFaceModule.faceIsOpen = !lzFaceModule.faceIsOpen;
+         
 //        lzFaceModule.showFace();
     },
 
@@ -80,6 +80,7 @@ var lzFaceModule = {
 
     // 隐藏表情选择框
     hideFace:function(){
+        lzFaceModule.faceIsOpen = false;
         var faceImg = getById("face_images");
         faceImg.style.display = 'none';
         faceImg.getElementsByTagName('ul')[0].style.display = 'none';
@@ -87,6 +88,7 @@ var lzFaceModule = {
     },
 
     bintEvent:function(){
+        lzFaceModule.faceIsOpen = true;
         var faceImg = getById("face_images");
         var pageDots = faceImg.getElementsByTagName('ul')[1].getElementsByTagName('li');
         var allFace = faceImg.getElementsByTagName('i');
@@ -246,7 +248,10 @@ function sendBtnClick(){
         addMyMessage(message,username);
         sendMessageToServer({message:message,username:username});
         document.getElementById('chat_textarea').value = '';
-        document.getElementById('chat_textarea').focus();
+        if (window.screen.width>640) {
+            document.getElementById('chat_textarea').focus();
+        };
+        
     }
         
 }
@@ -305,7 +310,7 @@ function bindSocketEvent(){
       // 如果返回的数据有sendSuccess字段，表示发送成功
       if (data.sendSuccess) {
         // addMyMessage(data.message,username);
-        console.log('send success');
+        // console.log('send success');
       };
 
       // 如果返回的数据有otherClientData字段，表示这条消息来自其他客户端
