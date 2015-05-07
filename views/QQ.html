@@ -223,15 +223,16 @@
         <div class="panel chat-panel" id="panel-5" cmd="void" style="transition: -webkit-transform 0.4s cubic-bezier(0, 1, 0, 1); -webkit-transition: -webkit-transform 0.4s cubic-bezier(0, 1, 0, 1); transform: translate3d(0px, 0px, 0px); -webkit-transform: translate3d(0px, 0px, 0px); display: block;">
         <header id="panelHeader-5" class="panel_header">
             
-            <button id="return-to-userlist" class="btn btn_small btn_right btn_black btn_setting" cmd="clickRightButton">
+            <button id="return-to-userlist" style="float:left;" class="btn btn_small btn_right btn_black btn_setting" cmd="clickRightButton">
                 <span id="panelRightButtonText-5" class="btn_text">返回</span>
             </button>
             
-                <h1 id="panelTitle-5" class="text_ellipsis padding_20">小黑做的web聊天室</h1>
-            
-            <button id="panelRightButton-5" class="btn btn_small btn_right btn_black btn_setting" cmd="clickRightButton">
+            <h1 id="panelTitle-5" class="text_ellipsis padding_20"> 小黑做的web聊天室 </h1>
+            <button id="panelRightButton-5" style="float:right;" class="btn btn_small btn_right btn_black btn_setting" cmd="clickRightButton">
                 <span id="panelRightButtonText-5" class="btn_text">关闭</span>
             </button>
+            
+
             
         </header>
 
@@ -256,13 +257,13 @@
         <!--     <div id="add_app_btn" class="btn btn_add_grey">
                     <span class="btn_img"></span>
                 </div> -->
-                <div id="add_face_btn" class="btn btn_face" style="float:left;">
+                <div id="add_face_btn" onclick="lzFaceModule.showFace()" class="btn btn_face" style="float:left;">
                     <span class="btn_img"></span>
                 </div>
                 
                 
                 <input type="text" id="chat_textarea" class="input input_white chat_textarea" style="width:58%;display: inline-block;">
-                <button id="send_chat_btn" onclick="sendBtnClick()" class="btn btn_small btn_blue" cmd="sendMsg" style="float:right;">
+                <button id="send_chat_btn" class="btn btn_small btn_blue" cmd="sendMsg" style="float:right;">
                     <span class="btn_text">发送</span>
                 </button>
                 
@@ -271,7 +272,7 @@
             </div>
             </form>
         <div id="face_images" class="qq_face_area" style="display: none;">
-            <ul class="wrap" style="width: 0px; -webkit-transform: translate3d(0px, 0px, 0px);">
+            <ul class="wrap" style="left:0;">
                 
                 <li class="faceIteam faceIteam1" cmd="chooseFace" style="width: 0px;">
                     
@@ -544,7 +545,7 @@
                 </li>
                 
             </ul>
-            <ul class="btnsWrap"><li class="" _index="0"></li><li _index="1" class=""></li><li _index="2" class=""></li><li _index="3"></li><li _index="4"></li><li _index="5" class="selected"></li></ul>
+            <ul class="btnsWrap"><li class="selected" _index="0"></li><li _index="1" class=""></li><li _index="2" class=""></li><li _index="3"></li><li _index="4"></li><li _index="5" class=""></li></ul>
         </div>
         <!-- <div id="qq_app_area" class="qq_app_area" style="display: none;">
             <ul></ul>

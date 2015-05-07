@@ -8,6 +8,100 @@ var username = '';
 
 var titleIsBlink = false;
 
+var lastSendTime = 0;
+
+
+
+// 表情模块（变量名懒得想了）
+var lzFaceModule = {
+    // 表情选择窗的开启状态
+    faceIsOpen:false,
+
+    // 保存中文字符表示的表情数组
+    faceZh:[],
+
+    // 初始化一些事件
+    init:function(){
+        var faceImg = getById("face_images");
+        var allFace = faceImg.getElementsByTagName('i');
+        this.faceImgToStr(allFace);
+        this.bintEvent();
+    },
+
+    // 图标转换为字符串数组
+    faceImgToStr:function(allFaceDoms){
+        for (var i = 0; i < allFaceDoms.length; i++) {
+            if(allFaceDoms[i].title != "delKey"){
+                this.faceZh.push("["+allFaceDoms[i].title+"]");
+            }
+        };
+    },
+
+    // 将一个str转换为face
+    strToFace:function(str){
+
+    },
+
+    // 点击表情
+    faceBtnClick:function(){
+        lzFaceModule.faceIsOpen = !lzFaceModule.faceIsOpen;
+        lzFaceModule.showFace();
+    },
+
+    // 展示选择框
+    showFace:function(){
+        var faceImg = getById("face_images");
+        faceImg.style.display = 'block';
+        faceImg.getElementsByTagName('ul')[0].style.display = 'block';
+        faceImg.getElementsByTagName('ul')[0].style.width = '4200px';
+        getById("panelBodyWrapper-5").style.height = getById("panel-5").offsetHeight - getById("panelHeader-5").offsetHeight - getById("panelFooter-5").offsetHeight+'px';
+        
+
+    },
+    bintEvent:function(){
+        var faceImg = getById("face_images");
+        var pageDots = faceImg.getElementsByTagName('ul')[1].getElementsByTagName('li');
+        var allFace = faceImg.getElementsByTagName('i');
+        // 绑定翻页事件
+        for (var i = 0; i < pageDots.length; i++) {
+            pageDots[i].onclick = function(i){
+                
+                return function(){
+                    for (var j = 0; j < pageDots.length; j++) {
+                        pageDots[j].className = "";
+                    };
+                    pageDots[i].className="selected";
+                    faceImg.getElementsByTagName('ul')[0].style.left = -faceImg.getElementsByTagName('ul')[0].getElementsByTagName("li")[0].offsetWidth*i + 'px';
+                }
+                
+            }(i)
+        };
+
+        // 绑定表情的点击事件
+        for (var i = 0; i < allFace.length; i++) {
+            if (allFace[i].title=='delKey') {
+                break;
+            };
+            allFace[i].onclick = function(i){
+                return function(){
+                    getById("chat_textarea").value += "["+this.title+"]";
+                }
+            }(i)
+        };
+
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 init();
 
@@ -99,16 +193,29 @@ function titleBlink(){
 
 // 通过Socket发送一条消息到服务器,消息可以是json数据
 function sendMessageToServer(message) {
-  socket.send(message); 
+    socket.send(message); 
 }
 
 // 发送按钮绑定事件
 function sendBtnClick(){
-    if (document.getElementById('chat_textarea').value && username){
+    
+
+    var message = document.getElementById('chat_textarea').value;
+    if (message && username){
+        var curTime = new Date().getTime();
+        if(curTime - lastSendTime<800){
+            addTimeTip('发言最小间隔为1秒，否则会按刷屏处理');
+            console.log(curTime,lastSendTime);
+            return;
+        }
+        lastSendTime = new Date().getTime();
+
+
         // sendMessageToServer(document.getElementById('chat_textarea').value);
-        
-        sendMessageToServer({message:document.getElementById('chat_textarea').value,username:username});
+        addMyMessage(message,username);
+        sendMessageToServer({message:message,username:username});
         document.getElementById('chat_textarea').value = '';
+        document.getElementById('chat_textarea').focus();
     }
         
 }
@@ -165,7 +272,8 @@ function bindSocketEvent(){
     socket.on("emitMessage",function(data) {
       // 如果返回的数据有sendSuccess字段，表示发送成功
       if (data.sendSuccess) {
-        addMyMessage(data.message,username);
+        // addMyMessage(data.message,username);
+        console.log('send success');
       };
 
       // 如果返回的数据有otherClientData字段，表示这条消息来自其他客户端
@@ -226,4 +334,10 @@ function init(){
         }
     }
 
+    lzFaceModule.init();
+
 }
+
+
+
+
