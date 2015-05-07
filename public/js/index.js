@@ -279,8 +279,8 @@ function loginOut(){
 
 // 绑定socket相关事件
 function bindSocketEvent(){
-    socket = io.connect("localhost:5000");
-//        socket =  io.connect(window.location.hostname);
+    // socket = io.connect("localhost:5000");
+       socket =  io.connect(window.location.hostname);
         // var socket =  io.connect("/");
     // 绑定事件
 
