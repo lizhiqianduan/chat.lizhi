@@ -58,7 +58,7 @@ socket.on("connection", function(client){
     // console.log(data);
     for (var i = 0; i < clientList.length; i++) {
       // console.log(1111,clientList[i].lzUserInfo.username,curName);
-      if(clientList[i].lzUserInfo.username == curName && clientList[i].handshake.address != client.handshake.address){
+      if(clientList[i].lzUserInfo.username == curName){
         client.emit('usernameCheckFail',{});
         return;
       }
