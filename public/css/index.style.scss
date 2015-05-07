@@ -24,5 +24,12 @@
 	ul.wrap{
 		transition:all .5s ease-out;
 		position:relative;
+        width:4200px;
 	}
+}
+.btnsWrap{
+  cursor: auto !important;
+  li{
+    cursor: pointer;
+  }
 }

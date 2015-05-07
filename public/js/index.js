@@ -1,3 +1,7 @@
+
+
+
+
 //创建Socket.IO实例，建立连接
 var socket = null;
 // var socket = io.connect("<%= ip %>:5000");
@@ -40,47 +44,71 @@ var lzFaceModule = {
     // 将一个str转换为face
     strToFace:function(str){
 
+         var tempStr = str.replace(/\[.{1,3}\]/g,function(matchStr,index,wholeStr){
+//            console.log(matchStr)
+            var inFace = lzFaceModule.faceZh.indexOf(matchStr);
+
+            if(inFace>-1){
+                return '<img src="http://pub.idqqimg.com/lib/qqface/'+ inFace +'.gif" alt="">';
+            }
+            return "" || matchStr;
+        });
+//        console.log(tempStr);
+        return tempStr;
     },
 
     // 点击表情
     faceBtnClick:function(){
+        if(this.faceIsOpen){
+            this.hideFace();
+        }else{
+            this.showFace();
+        }
         lzFaceModule.faceIsOpen = !lzFaceModule.faceIsOpen;
-        lzFaceModule.showFace();
+//        lzFaceModule.showFace();
     },
 
-    // 展示选择框
+    // 展示表情选择框
     showFace:function(){
         var faceImg = getById("face_images");
         faceImg.style.display = 'block';
         faceImg.getElementsByTagName('ul')[0].style.display = 'block';
         faceImg.getElementsByTagName('ul')[0].style.width = '4200px';
         getById("panelBodyWrapper-5").style.height = getById("panel-5").offsetHeight - getById("panelHeader-5").offsetHeight - getById("panelFooter-5").offsetHeight+'px';
-        
-
+        chatBoxScrollBottom();
     },
+
+    // 隐藏表情选择框
+    hideFace:function(){
+        var faceImg = getById("face_images");
+        faceImg.style.display = 'none';
+        faceImg.getElementsByTagName('ul')[0].style.display = 'none';
+        getById("panelBodyWrapper-5").style.height = getById("panel-5").offsetHeight - getById("panelHeader-5").offsetHeight - getById("panelFooter-5").offsetHeight+'px';
+    },
+
     bintEvent:function(){
         var faceImg = getById("face_images");
         var pageDots = faceImg.getElementsByTagName('ul')[1].getElementsByTagName('li');
         var allFace = faceImg.getElementsByTagName('i');
         // 绑定翻页事件
-        for (var i = 0; i < pageDots.length; i++) {
-            pageDots[i].onclick = function(i){
+        for (var pindex = 0; pindex < pageDots.length; pindex++) {
+            pageDots[pindex].onclick = function(k){
                 
                 return function(){
                     for (var j = 0; j < pageDots.length; j++) {
                         pageDots[j].className = "";
                     };
-                    pageDots[i].className="selected";
-                    faceImg.getElementsByTagName('ul')[0].style.left = -faceImg.getElementsByTagName('ul')[0].getElementsByTagName("li")[0].offsetWidth*i + 'px';
+                    pageDots[k].className="selected";
+                    faceImg.getElementsByTagName('ul')[0].style.left = -faceImg.getElementsByTagName('ul')[0].getElementsByTagName("li")[0].offsetWidth*k + 'px';
                 }
                 
-            }(i)
+            }(pindex)
         };
 
         // 绑定表情的点击事件
         for (var i = 0; i < allFace.length; i++) {
             if (allFace[i].title=='delKey') {
-                break;
+                continue;
             };
             allFace[i].onclick = function(i){
                 return function(){
@@ -121,6 +149,7 @@ function getNameFormCookie(){
             // console.log(kv);
 
             if(kv[0].trim() == 'lz-username' && kv[1]){
+//                if(kv[0].trim() == 'lz-username' && kv[1]){
                 return kv[1];
             }
         };
@@ -137,6 +166,7 @@ function addTimeTip(timeStr){
 
 // 显示其他人发送的消息
 function addOtherClentMessage(message,name){
+    message = lzFaceModule.strToFace(message);
     var dom = '<div class="chat_content_group buddy  " _sender_uin="418131904"><img class="chat_content_avatar" src="./QQ_files/getface(1)" width="40px" height="40px"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +' </p></div>';
     document.getElementById("panelBody-5").innerHTML += dom;
     chatBoxScrollBottom();
@@ -144,6 +174,7 @@ function addOtherClentMessage(message,name){
 
 // 显示自己发送的消息
 function addMyMessage(message,name){
+    message = lzFaceModule.strToFace(message);
     var dom = '<div class="chat_content_group self  " ><img class="chat_content_avatar" src="./QQ_files/getface"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +'</p></div>';
     document.getElementById("panelBody-5").innerHTML += dom;
     chatBoxScrollBottom();
@@ -248,8 +279,8 @@ function loginOut(){
 
 // 绑定socket相关事件
 function bindSocketEvent(){
-    // socket = io.connect("localhost:5000");
-        socket =  io.connect(window.location.hostname);
+    socket = io.connect("localhost:5000");
+//        socket =  io.connect(window.location.hostname);
         // var socket =  io.connect("/");
     // 绑定事件
 
@@ -321,6 +352,18 @@ function bindSocketEvent(){
 
 // 页面初始化，程序入口
 function init(){
+    var msie = navigator.userAgent.toLowerCase().match(/msie.*?;/);
+
+    var version = msie ? msie[0].match(/\d/) : null;
+    if (version && version<9) {
+
+        alert('本聊天室不支持ie8及其以下的古老浏览器，渣渣浏览器，赶紧换了吧！');
+        document.body.innerHTML="本聊天室不支持ie8及其以下的古老浏览器，渣渣浏览器，赶紧换了吧!";
+        return;
+    }
+
+
+
     // 获取姓名
     if (getNameFormCookie() =='') {
         getById('lz-mask').style.display = 'block';
