@@ -142,7 +142,7 @@ function sendMessageToAllClient(message,clientList,eventTypeString){
 
 // 处理字符串
 function letStrSecurity(str){
-    var imgReg = new RegExp(/<img +src="[^"]+"{1}? +\/{0,1}>/);
+    var imgReg = new RegExp(/<img src="[^"]+"{1}? +alt="" *\/{0,1}>/);
     if(imgReg.test(str)){
         return str;
     }
