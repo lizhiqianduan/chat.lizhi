@@ -4,7 +4,7 @@
 
 //创建Socket.IO实例，建立连接
 var socket = null;
-// var socket = io.connect("<%= ip %>:5000");
+//var socket = io.connect("<%= ip %>:5000");
 // var socket =  io.connect(window.location.hostname);
 // var socket =  io.connect("/");
 
@@ -130,8 +130,26 @@ var lzFaceModule = {
         if(document.documentElement.clientWidth<640){
             this.hideFace();
         }
+    },
+    letStrSecurity:function(str){
+        var imgReg = new RegExp(/<img +src="[^"]+"{1}? +\/{0,1}>/);
+        if(imgReg.test(str)){
+            return str;
+        }
+        var tempStr =  str.replace(/(<)|(>)|&|-|"/g,function(matchstr,i,all){
+            if(/</.test(matchstr))
+                return "&lt;";
+            if(/>/.test(matchstr))
+                return "&gt;";
+            if (/&/.test(matchstr))
+                return "&amp;";
+            if (/"/.test(matchstr))
+                return "&quot;";
+        });
+        return tempStr;
     }
-}
+};
+
 
 
 
@@ -179,7 +197,8 @@ function addTimeTip(timeStr){
 // 显示其他人发送的消息
 function addOtherClentMessage(message,name){
     message = lzFaceModule.strToFace(message);
-    var dom = '<div class="chat_content_group buddy  " _sender_uin="418131904"><img class="chat_content_avatar" src="./QQ_files/getface(1)" width="40px" height="40px"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +' </p></div>';
+    name = lzFaceModule.letStrSecurity(name);
+    var dom = '<div class="chat_content_group buddy " ><img class="chat_content_avatar" src="./QQ_files/getface(1)" width="40px" height="40px"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +' </p></div>';
     document.getElementById("panelBody-5").innerHTML += dom;
     chatBoxScrollBottom();
 }
@@ -187,6 +206,8 @@ function addOtherClentMessage(message,name){
 // 显示自己发送的消息
 function addMyMessage(message,name){
     message = lzFaceModule.strToFace(message);
+    message = lzFaceModule.letStrSecurity(message);
+    name = lzFaceModule.letStrSecurity(name);
     var dom = '<div class="chat_content_group self  " ><img class="chat_content_avatar" src="./QQ_files/getface"><p class="chat_nick">'+ name +'</p><p class="chat_content ">'+ message +'</p></div>';
     document.getElementById("panelBody-5").innerHTML += dom;
     chatBoxScrollBottom();
@@ -270,7 +291,10 @@ function sendBtnClick(){
 function lzSureClick(){
     if (getById('lz-username').value) {
         username = getById('lz-username').value;
-
+        if(username.length>50){
+            alert('你的名字太长了');
+            return;
+        }
         setCookie('lz-username',username,24);
         getById('lz-mask').style.display = 'none';
         bindSocketEvent();
@@ -295,8 +319,8 @@ function loginOut(){
 
 // 绑定socket相关事件
 function bindSocketEvent(){
-//    socket = io.connect("localhost:5000");
-       socket =  io.connect(window.location.hostname);
+    socket = io.connect("localhost:5000");
+//       socket =  io.connect(window.location.hostname);
         // var socket =  io.connect("/");
     // 绑定事件
 
@@ -313,6 +337,8 @@ function bindSocketEvent(){
         addTimeTip(new Date().toLocaleTimeString());
         addOtherClentMessage(username+'，你好！你已经进入聊天室了，快和大家打个招呼吧！','小黑的智能机器人');
         addTimeTip('现版本聊天室没有数据库作存储，所以...千万别刷新!');
+        addOtherClentMessage("如果大家在交流过程中遇到什么问题，可以到我建的一个web交流群里面去找我，群号：439366057","小黑的智能机器人")
+        addOtherClentMessage("也可以到我的个人网站上去留言：<a href='http://www.lizhiqianduan.com' target='_blank'>www.lizhiqianduan.com 励志前端</a>，祝大家交流愉快！","小黑的智能机器人")
     });
 
     // 无论用户是否登陆，都接收后端发来的数据
@@ -326,8 +352,9 @@ function bindSocketEvent(){
       // 如果返回的数据有otherClientData字段，表示这条消息来自其他客户端
       if(data.otherClientData){
         // console.log(data);
-        titleBlink();
-        addOtherClentMessage(data.message,data.username);
+            titleBlink();
+
+            addOtherClentMessage(data.message,data.username);
       };
 
       
@@ -352,9 +379,10 @@ function bindSocketEvent(){
 
     // 验证用户失败
     socket.on("usernameCheckFail",function(data){
+        setCookie('lz-username',-2);
         var lzmask = getById('lz-mask');
         lzmask.style.display = 'block';
-        getById('namewrap').innerHTML += '<div style="color:red;">该名字已经在别处登陆了~~<br>重新取个牛逼的名字吧</div>';
+        getById('namewrap').innerHTML += '<div style="color:red;">' + data.errMsg + '<br>重新取个牛逼的名字吧</div>';
     });
 
     

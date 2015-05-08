@@ -54,55 +54,72 @@ socket.on("connection", function(client){
 
   // 检测用户信息  data --> 必须包含username字段
   client.on('checkUsername',function(data){
-    var curName = data.username;
-    // console.log(data);
-    for (var i = 0; i < clientList.length; i++) {
-      // console.log(1111,clientList[i].lzUserInfo.username,curName);
-      if(clientList[i].lzUserInfo.username == curName){
-        client.emit('usernameCheckFail',{});
-        return;
+      var curName = data.username;
+
+      curName = curName.replace(/(<)|(>)|&|-|"/g,function(matchstr,i,all){
+          if(/</.test(matchstr))
+              return "&lt;";
+          if(/>/.test(matchstr))
+              return "&gt;";
+          if (/&/.test(matchstr))
+              return "&amp;";
+          if (/"/.test(matchstr))
+              return "&quot;";
+      });
+      if(curName && curName.length>30){
+          client.emit('usernameCheckFail',{errMsg:'你的名字太长了。。'});
+          return;
       }
-    };
-    // 如果是新用户进入，给客户端发送一个更新用户的事件
-    client.lzUserInfo.username = curName;
-    client.lzUserInfo.connId = client.conn.id;
-    client.emit('usernameCheckSuccess',{});
-    
-    letClientRefreshUser();
+      // console.log(data);
+      for (var i = 0; i < clientList.length; i++) {
+          // console.log(1111,clientList[i].lzUserInfo.username,curName);
+          if(clientList[i].lzUserInfo.username == curName){
+              client.emit('usernameCheckFail',{errMsg:'姓名已经被使用'});
+              return;
+          }
+      };
+      // 如果是新用户进入，给客户端发送一个更新用户的事件
+      client.lzUserInfo.username = curName;
+      client.lzUserInfo.connId = client.conn.id;
+      client.emit('usernameCheckSuccess',{});
+
+      letClientRefreshUser();
 
   });
 
   // 让客户端更新用户列表
   function letClientRefreshUser(){
-    var allConnId = [];
-    for (var i = 0; i < clientList.length; i++) {
-      allConnId.push({connId:clientList[i].conn.id,userIp:clientList[i].handshake.address,username:clientList[i].lzUserInfo.username});
-    };
-    for (var i = 0; i < clientList.length; i++) {
-      // if (clientList[i].conn.id != clientInfo) {
-        clientList[i].emit("refreshUserList", allConnId);
-      // };
-    };
+      var allConnId = [];
+      for (var i = 0; i < clientList.length; i++) {
+          allConnId.push({connId:clientList[i].conn.id,userIp:clientList[i].handshake.address,username:clientList[i].lzUserInfo.username});
+      };
+      for (var i = 0; i < clientList.length; i++) {
+          // if (clientList[i].conn.id != clientInfo) {
+          clientList[i].emit("refreshUserList", allConnId);
+          // };
+      };
   }
 
   // 收到客户端的消息
   client.on("message",function(data){
-    // console.log("收到客户端的消息：",data);
-    client.emit("emitMessage", { sendSuccess:1,message:data.message,username:data.username,connId:clientInfo});
+      var messageToClient = letStrSecurity(data.message);
+      // console.log("收到客户端的消息：",data);
+      client.emit("emitMessage", { sendSuccess:1,message:messageToClient,username:data.username,connId:clientInfo});
 
-    // 记录socket不可写的客户端
-    var cleanList = [];
+      // 记录socket不可写的客户端
+      var cleanList = [];
 
-    // 遍历客户端列表发消息
-    for (var i = 0; i < clientList.length; i++) {
+      // 遍历客户端列表发消息
+      for (var i = 0; i < clientList.length; i++) {
 
-      // 如果可写，那么发送数据，不需要给自身发数据
-      if (clientList[i].conn.id != clientInfo) {
-        // console.log(clientList[i].conn.id,clientInfo,clientList[i].conn.id != clientInfo);
-        clientList[i].emit("emitMessage", {otherClientData:1, message: data.message,username:data.username});
+          // 如果可写，那么发送数据，不需要给自身发数据
+          if (clientList[i].conn.id != clientInfo) {
+
+              // console.log(clientList[i].conn.id,clientInfo,clientList[i].conn.id != clientInfo);
+              clientList[i].emit("emitMessage", {otherClientData:1, message: messageToClient,username:data.username});
+          };
+
       };
-
-    };
 
 
   });
@@ -123,6 +140,24 @@ function sendMessageToAllClient(message,clientList,eventTypeString){
     };
 }
 
+// 处理字符串
+function letStrSecurity(str){
+    var imgReg = new RegExp(/<img +src="[^"]+"{1}? +\/{0,1}>/);
+    if(imgReg.test(str)){
+        return str;
+    }
+    var tempStr =  str.replace(/(<)|(>)|&|-|"/g,function(matchstr,i,all){
+        if(/</.test(matchstr))
+            return "&lt;";
+        if(/>/.test(matchstr))
+            return "&gt;";
+        if (/&/.test(matchstr))
+            return "&amp;";
+        if (/"/.test(matchstr))
+            return "&quot;";
+    });
+    return tempStr;
+};
 
 function getIPAdress(){  
     var interfaces = require('os').networkInterfaces();  
