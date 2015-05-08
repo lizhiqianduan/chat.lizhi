@@ -11,8 +11,10 @@ var socket = null;
 var username = '';
 
 var titleIsBlink = false;
-
+//上次接收时间
 var lastSendTime = 0;
+//总共收到的信息条数，包括自己发送的
+var allMesNum = 0;
 
 
 
@@ -269,7 +271,7 @@ function sendBtnClick(){
         var curTime = new Date().getTime();
         if(curTime - lastSendTime<800){
             addTimeTip('发言最小间隔为1秒，否则会按刷屏处理');
-            console.log(curTime,lastSendTime);
+//            console.log(curTime,lastSendTime);
             return;
         }
         lastSendTime = new Date().getTime();
@@ -343,6 +345,12 @@ function bindSocketEvent(){
 
     // 无论用户是否登陆，都接收后端发来的数据
     socket.on("emitMessage",function(data) {
+        allMesNum ++;
+        if(allMesNum>100){
+            getById("panelBody-5").innerHTML="";
+            allMesNum = 0;
+            addTimeTip("消息接收已经达到100条了，系统已自动清理")
+        }
       // 如果返回的数据有sendSuccess字段，表示发送成功
       if (data.sendSuccess) {
         // addMyMessage(data.message,username);
