@@ -70,6 +70,7 @@ var lzFaceModule = {
 
     // 展示表情选择框
     showFace:function(){
+        this.faceIsOpen = true;
         var faceImg = getById("face_images");
         faceImg.style.display = 'block';
         faceImg.getElementsByTagName('ul')[0].style.display = 'block';
@@ -80,7 +81,7 @@ var lzFaceModule = {
 
     // 隐藏表情选择框
     hideFace:function(){
-        lzFaceModule.faceIsOpen = false;
+        this.faceIsOpen = false;
         var faceImg = getById("face_images");
         faceImg.style.display = 'none';
         faceImg.getElementsByTagName('ul')[0].style.display = 'none';
@@ -88,7 +89,6 @@ var lzFaceModule = {
     },
 
     bintEvent:function(){
-        lzFaceModule.faceIsOpen = true;
         var faceImg = getById("face_images");
         var pageDots = faceImg.getElementsByTagName('ul')[1].getElementsByTagName('li');
         var allFace = faceImg.getElementsByTagName('i');
@@ -119,7 +119,17 @@ var lzFaceModule = {
             }(i)
         };
 
+        // 绑定屏幕尺寸变化事件
+        window.onresize = function(){
+            getById("panelBodyWrapper-5").style.height = getById("panel-5").offsetHeight - getById("panelHeader-5").offsetHeight - getById("panelFooter-5").offsetHeight +'px';
+        }
 
+
+    },
+    inputOnFocus:function(){
+        if(document.documentElement.clientWidth<640){
+            this.hideFace();
+        }
     }
 }
 
@@ -248,7 +258,7 @@ function sendBtnClick(){
         addMyMessage(message,username);
         sendMessageToServer({message:message,username:username});
         document.getElementById('chat_textarea').value = '';
-        if (window.screen.width>640) {
+        if (document.documentElement.clientWidth>640) {
             document.getElementById('chat_textarea').focus();
         };
         
@@ -285,8 +295,8 @@ function loginOut(){
 
 // 绑定socket相关事件
 function bindSocketEvent(){
-    // socket = io.connect("localhost:5000");
-       socket =  io.connect(window.location.hostname);
+    socket = io.connect("localhost:5000");
+//       socket =  io.connect(window.location.hostname);
         // var socket =  io.connect("/");
     // 绑定事件
 
